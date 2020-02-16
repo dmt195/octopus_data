@@ -38,10 +38,10 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  DateTime dayOfInterest = DateTime.now();
+  DateTime _dayOfInterest = DateTime.now();
   bool isActive = false;
 
-  Future<void> _incrementCounter() async {
+  Future<void> _fetchData() async {
     setState(() {
       isActive = true;
     });
@@ -59,13 +59,11 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
         title: Text(widget.title),
       ),
       body: StreamBuilder<List<EnergyData>>(
         stream:
-            Provider.of<AppDatabase>(context).watchAllEnergyData(dayOfInterest),
+            Provider.of<AppDatabase>(context).watchAllEnergyData(_dayOfInterest),
         initialData: [],
         builder: ((context, snapshot) {
           if (!snapshot.hasData || snapshot.hasError) {
@@ -82,7 +80,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 startDate: DateTime.now().subtract(Duration(days: 30)),
                 endDate: DateTime.now().add(Duration(days: 2)),
                 onDateSelected: (date) => _setDateOfInterest(date),
-                selectedDate: dayOfInterest,
+                selectedDate: _dayOfInterest,
               ),
               SummariserWidget(snapshot.data),
               GraphWidget(snapshot.data),
@@ -92,42 +90,42 @@ class _MyHomePageState extends State<MyHomePage> {
         }),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
+        onPressed: _fetchData,
+        tooltip: 'Fetch Data',
         child: isActive
             ? CircularProgressIndicator(
                 backgroundColor: Colors.white,
               )
             : Icon(Icons.cloud_download),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+      ),
     );
   }
 
   _setDateOfInterest(date) {
     setState(() {
-      dayOfInterest = date;
+      _dayOfInterest = date;
     });
   }
 }
 
 class DataListViewWidget extends StatelessWidget {
-  final List<EnergyData> data;
+  final List<EnergyData> _data;
 
   DataListViewWidget(
-    this.data, {
+    this._data, {
     Key key,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Expanded(
-      child: data.isEmpty
+      child: _data.isEmpty
           ? Center(child: Text("No Data For This Date (Yet)"))
           : ListView.separated(
-              itemCount: data.length,
+              itemCount: _data.length,
               reverse: true,
               itemBuilder: (context, index) {
-                EnergyData item = data[index];
+                EnergyData item = _data[index];
                 double actualTariff = RepositoryController.calculateCost(
                     item.tariffWithVat, 1, item.intervalStart.hour);
 
@@ -157,7 +155,7 @@ class DataListViewWidget extends StatelessWidget {
 }
 
 Color _getTariffBasedColour(double actualTariff) {
-  //Super Green for < 0
+  //Super Green for < 5
   //Green for < 10p actual
   //Yellow for 10-20p
   //Amber2 for 20-30p
@@ -219,8 +217,10 @@ class SummariserWidget extends StatelessWidget {
                   "Effective Rate",
                   style: TextStyle(fontWeight: FontWeight.bold),
                 ),
+                totalConsumption != 0 ?
                 Text(
-                    "${(totalCost / totalConsumption).toStringAsFixed(2)} p/kWh")
+                    "${(totalCost / totalConsumption).toStringAsFixed(2)} p/kWh") :
+                    Text("-")
               ],
             )
           ],

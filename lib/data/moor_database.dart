@@ -69,8 +69,8 @@ class AppDatabase extends _$AppDatabase {
           ..where((e) => e.consumption.isBiggerThanValue(0.0))
           ..limit(1))
         .getSingle();
-    print(
-        "Last Consumption datapoint found at ${dataPoint?.intervalStart?.toIso8601String()}.");
+//    print(
+//        "Last Consumption datapoint found at ${dataPoint?.intervalStart?.toIso8601String()}.");
     return dataPoint?.intervalStart;
   }
 
@@ -90,7 +90,7 @@ class AppDatabase extends _$AppDatabase {
     List<EnergyData> data = await (select(energy)
           ..where((e) => e.consumption.isBiggerThanValue(0.0)))
         .get();
-    print("Found ${data.length} uncosted entries");
+//    print("Found ${data.length} uncosted entries");
     return data;
   }
 }
