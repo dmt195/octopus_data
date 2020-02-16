@@ -37,7 +37,7 @@ Send me a message and let me know what you want to change. I will only accept PR
 - Data for wholesale prices is saved in the DB but actual prices are calculated on the fly. I did have a plan to pull this into the DB too to make everything faster.
 - Auto fetching data on launch.
 
-#License (MIT) 
+# License (MIT) 
 
 Copyright (c) 2020 David Taylor
 
