@@ -29,7 +29,13 @@ When you first run the app there will be no data stored. The floating action but
 This is a bit clunky and does affect performance (particularly the first time you run it) - see known issues / improvements!.
 
 ## How to contribute
-Send me a message and let me know what you want to change. I will only accept PRs that I believe to be in keeping with my vision of the app so best to check first. I'll most likely say yes! Of course you can always fork the repo and do whatever.
+Fork the repository, make changes, and submit a pull request. There's plenty that can be done. I only ask that PRs are kept small and focused.
+
+Android Screenshot
+
+![some early hours high usage!][screenshot]
+
+[screenshot]: docs/android_debug.png
 
 ## Known issues /improvements
 - DB writing (this seems to happen on the main thread with the library I'm using (moor). Ideally, I'd use an isolate to make sure this happens in the background. Related to this, the view is reactive so refreshing with every DB entry. A simple fix would be to make the views less coupled to the DB (it seemed elegant at first!).
