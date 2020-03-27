@@ -1,3 +1,4 @@
+import 'package:injectable/injectable.dart';
 import 'package:moor_flutter/moor_flutter.dart';
 
 part 'moor_database.g.dart';
@@ -19,6 +20,7 @@ class Energy extends Table {
   Set<Column> get primaryKey => {intervalStart};
 }
 
+@singleton
 @UseMoor(tables: [Energy])
 class AppDatabase extends _$AppDatabase {
   AppDatabase()
@@ -93,4 +95,6 @@ class AppDatabase extends _$AppDatabase {
 //    print("Found ${data.length} uncosted entries");
     return data;
   }
+
+
 }
