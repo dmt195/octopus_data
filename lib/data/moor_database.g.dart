@@ -42,7 +42,8 @@ class EnergyData extends DataClass implements Insertable<EnergyData> {
     );
   }
   factory EnergyData.fromJson(Map<String, dynamic> json,
-      {ValueSerializer serializer = const ValueSerializer.defaults()}) {
+      {ValueSerializer serializer}) {
+    serializer ??= moorRuntimeOptions.defaultSerializer;
     return EnergyData(
       intervalStart: serializer.fromJson<DateTime>(json['intervalStart']),
       intervalEnd: serializer.fromJson<DateTime>(json['intervalEnd']),
@@ -53,9 +54,9 @@ class EnergyData extends DataClass implements Insertable<EnergyData> {
     );
   }
   @override
-  Map<String, dynamic> toJson(
-      {ValueSerializer serializer = const ValueSerializer.defaults()}) {
-    return {
+  Map<String, dynamic> toJson({ValueSerializer serializer}) {
+    serializer ??= moorRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
       'intervalStart': serializer.toJson<DateTime>(intervalStart),
       'intervalEnd': serializer.toJson<DateTime>(intervalEnd),
       'tariffWithVat': serializer.toJson<double>(tariffWithVat),
@@ -127,7 +128,7 @@ class EnergyData extends DataClass implements Insertable<EnergyData> {
               $mrjc(tariffExVat.hashCode,
                   $mrjc(consumption.hashCode, costWithVat.hashCode))))));
   @override
-  bool operator ==(other) =>
+  bool operator ==(dynamic other) =>
       identical(this, other) ||
       (other is EnergyData &&
           other.intervalStart == this.intervalStart &&
@@ -291,40 +292,28 @@ class $EnergyTable extends Energy with TableInfo<$EnergyTable, EnergyData> {
           _intervalStartMeta,
           intervalStart.isAcceptableValue(
               d.intervalStart.value, _intervalStartMeta));
-    } else if (intervalStart.isRequired && isInserting) {
-      context.missing(_intervalStartMeta);
     }
     if (d.intervalEnd.present) {
       context.handle(_intervalEndMeta,
           intervalEnd.isAcceptableValue(d.intervalEnd.value, _intervalEndMeta));
-    } else if (intervalEnd.isRequired && isInserting) {
-      context.missing(_intervalEndMeta);
     }
     if (d.tariffWithVat.present) {
       context.handle(
           _tariffWithVatMeta,
           tariffWithVat.isAcceptableValue(
               d.tariffWithVat.value, _tariffWithVatMeta));
-    } else if (tariffWithVat.isRequired && isInserting) {
-      context.missing(_tariffWithVatMeta);
     }
     if (d.tariffExVat.present) {
       context.handle(_tariffExVatMeta,
           tariffExVat.isAcceptableValue(d.tariffExVat.value, _tariffExVatMeta));
-    } else if (tariffExVat.isRequired && isInserting) {
-      context.missing(_tariffExVatMeta);
     }
     if (d.consumption.present) {
       context.handle(_consumptionMeta,
           consumption.isAcceptableValue(d.consumption.value, _consumptionMeta));
-    } else if (consumption.isRequired && isInserting) {
-      context.missing(_consumptionMeta);
     }
     if (d.costWithVat.present) {
       context.handle(_costWithVatMeta,
           costWithVat.isAcceptableValue(d.costWithVat.value, _costWithVatMeta));
-    } else if (costWithVat.isRequired && isInserting) {
-      context.missing(_costWithVatMeta);
     }
     return context;
   }
@@ -375,5 +364,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   $EnergyTable _energy;
   $EnergyTable get energy => _energy ??= $EnergyTable(this);
   @override
-  List<TableInfo> get allTables => [energy];
+  Iterable<TableInfo> get allTables => allSchemaEntities.whereType<TableInfo>();
+  @override
+  List<DatabaseSchemaEntity> get allSchemaEntities => [energy];
 }
