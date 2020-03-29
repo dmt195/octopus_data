@@ -39,6 +39,7 @@ Android Screenshot
 [screenshot]: docs/android_debug.png
 
 ## Known issues /improvements
-- ~Hard coded creds.~ I was aiming to have an onboarding flow to collect this information and store it in the shared preferences. An even nicer approach would be to use a webview to shadow the login process and retrieve the info directly. This hasn't happened yet!
+- I've started to move things into a Bloc pattern. This only covers part of the logic right now but I'd like it to control all of the flow.
+- ~Hard coded creds.~ I have an onboarding flow to collect this information and store it in the shared preferences (settings page). An even nicer approach would be to use a webview to shadow the login process and retrieve the info directly. This hasn't happened yet!
 - Data for wholesale prices is saved in the DB but actual prices (calculated via Octopus' algorithm) are calculated on the fly. I did have a plan to pull this into the DB too to make everything faster.
 - Auto fetching data on launch.

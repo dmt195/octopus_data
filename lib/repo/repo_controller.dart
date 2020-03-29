@@ -1,7 +1,7 @@
 import 'dart:math';
 
 import 'package:injectable/injectable.dart';
-import 'package:octopus_data/access_controller.dart';
+import 'package:octopus_data/key_value_store.dart';
 import 'package:octopus_data/data/moor_database.dart';
 import 'package:octopus_data/repo/agile_repo.dart';
 

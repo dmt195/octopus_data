@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:injectable/injectable.dart';
-import 'package:octopus_data/access_controller.dart';
+import 'package:octopus_data/key_value_store.dart';
 import 'package:octopus_data/repo/consumption_response.dart';
 import 'dart:async' show Future;
 import 'package:flutter/services.dart' show rootBundle;
