@@ -29,17 +29,22 @@ class MainBloc extends Bloc<MainEvent, MainState> {
 
   @override
   Stream<MainState> mapEventToState(MainEvent event,) async* {
+    print("In mapEventToState with $event");
     if (event is DownloadRequestEvent) {
+      print("DownloadRequestEvent fired!");
       yield DataRequestState();
       await repositoryController.getAndSaveAllTariffData();
       await repositoryController.getAndSaveAllConsumptionData();
       await repositoryController.findCompletableChargeMatchesAndAddToDb();
       yield DataAvailableState();
     } else if (event is SavedDataReadyEvent) {
+      print("SavedDataReadyEvent fired!");
       // if empty then fire the settings page event
       if (keyValueStore.apiKey.isEmpty) {
+        print("api key is empty");
         yield SettingsRequiredState();
       } else {
+        print("api key is present");
         // ready the repos with their appropriate settings
         repositoryController = RepositoryController(db, keyValueStore, AgileRepository(keyValueStore));
         yield DataAvailableState();

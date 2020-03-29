@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:calendar_strip/calendar_strip.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -6,7 +8,6 @@ import 'package:octopus_data/data/moor_database.dart';
 import 'package:octopus_data/data_list_item.dart';
 import 'package:octopus_data/graph_widget.dart';
 import 'package:octopus_data/summariser_widget.dart';
-import 'package:provider/provider.dart';
 
 class MyHomePage extends StatefulWidget {
   MyHomePage({Key key}) : super(key: key);
@@ -20,16 +21,12 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   bool isLoading = false;
   DateTime _dayOfInterest = DateTime.now();
-  MainBloc bloc;
 
   @override
   Widget build(BuildContext context) {
-    bloc = Provider.of<MainBloc>(context);
-    AppDatabase db = Provider.of<AppDatabase>(context);
-
-    return BlocBuilder(
-      bloc: bloc,
+    return BlocBuilder<MainBloc, MainState>(
       builder: ((BuildContext context, MainState mainState) {
+        MainBloc bloc = BlocProvider.of<MainBloc>(context);
         if (mainState is SettingsRequiredState) {
           Navigator.pushNamed(context, '/settings');
         }
@@ -39,7 +36,7 @@ class _MyHomePageState extends State<MyHomePage> {
             actions: <Widget>[SettingsMenuIcon()],
           ),
           body: StreamBuilder<List<EnergyData>>(
-            stream: db.watchAllEnergyData(_dayOfInterest),
+            stream: bloc.db.watchAllEnergyData(_dayOfInterest),
             initialData: [],
             builder: ((context, snapshot) {
               if (!snapshot.hasData || snapshot.hasError) {
@@ -66,13 +63,15 @@ class _MyHomePageState extends State<MyHomePage> {
             }),
           ),
           floatingActionButton: FloatingActionButton(
-            onPressed: (bloc.state.settingsState == SettingsState.VALID) ? () =>
-                bloc.add(DownloadRequestEvent()) : null,
+            onPressed: (bloc.keyValueStore != null &&
+                    bloc.keyValueStore.apiKey.isNotEmpty)
+                ? () => bloc.add(DownloadRequestEvent())
+                : null,
             tooltip: 'Fetch Data',
             child: mainState.isLoading
                 ? CircularProgressIndicator(
-              backgroundColor: Colors.white,
-            )
+                    backgroundColor: Colors.white,
+                  )
                 : Icon(Icons.cloud_download),
           ),
         );
@@ -112,7 +111,7 @@ void showToast(BuildContext context, String text) {
     SnackBar(
       content: Text(text),
       action:
-      SnackBarAction(label: 'OK', onPressed: scaffold.hideCurrentSnackBar),
+          SnackBarAction(label: 'OK', onPressed: scaffold.hideCurrentSnackBar),
     ),
   );
 }

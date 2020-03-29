@@ -7,7 +7,11 @@ abstract class MainState {
   final DateTime dayOfInterest = DateTime.now();
 }
 
-class InitialMainState extends MainState {}
+class InitialMainState extends MainState {
+  final bool isLoading = false;
+  final SettingsState settingsState = SettingsState.UNKNOWN;
+  final DateTime dayOfInterest = DateTime.now();
+}
 
 class DataRequestState extends MainState {
   final bool isLoading = true;

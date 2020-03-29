@@ -23,12 +23,12 @@ class RepositoryController {
       bool isMoreResults = true;
       //iterate over all the results, making an api call each time
       while (isMoreResults) {
-//        print("Making tariff API call (page = $page)");
+        print("Making tariff API call (page = $page)");
         var response = await ar.getRatesForDateRange(
             lastTariffEntry ?? tomorrow.subtract(Duration(days: 30)), tomorrow,
             page: page);
         if (response != null && response.count > 0) {
-//          print("Inserting ${response.count} items into Tariffs Table");
+          print("Inserting ${response.count} items into Tariffs Table");
           db.transaction(() async {
             response.results.forEach((result) async {
               await db.insertTariffData(result.toDbItem());
@@ -51,12 +51,12 @@ class RepositoryController {
       bool isMoreResults = true;
       //iterate over all the results, making an api call each time
       while (isMoreResults) {
-//        print("Making consumption API call (page = $page)");
+        print("Making consumption API call (page = $page)");
         var response = await ar.getConsumptionForDateRange(
             lastConsumptionEntry ?? today.subtract(Duration(days: 30)), today,
             page: page);
         if (response != null && response.count > 0) {
-//          print("Inserting ${response.count} items into Consumption Table");
+          print("Inserting ${response.count} items into Consumption Table");
           db.transaction(() async {
             response.results.forEach((result) async {
               await db.updateWithConsumptionData(result.toDbItem());
@@ -75,7 +75,7 @@ class RepositoryController {
     List<EnergyData> dbResponseData = await db.getUncostedEntries();
     List<EnergyData> dataToUpdate;
     if (dbResponseData == null || dbResponseData.isEmpty) {
-//      print("Nothing to update cost wise");
+      print("Nothing to update cost wise");
       return null;
     }
 
@@ -85,7 +85,7 @@ class RepositoryController {
     } else {
       dataToUpdate = dbResponseData;
     }
-//    print("Updating costs... (for ${dataToUpdate.length} items)");
+    print("Updating costs... (for ${dataToUpdate.length} items)");
     db.transaction(() async {
       dataToUpdate.forEach((e) async {
         await db.updateWithCostData(EnergyData(

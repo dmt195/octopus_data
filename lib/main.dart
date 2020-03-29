@@ -5,10 +5,13 @@ import 'package:octopus_data/home_page.dart';
 import 'package:octopus_data/settings_widget.dart';
 import 'package:provider/provider.dart';
 
-void main() => runApp(Provider<AppDatabase>(
+void main() {
+  Provider.debugCheckInvalidValueType = null;
+  runApp(Provider<AppDatabase>(
     create: (_) => AppDatabase(),
     dispose: (_, db) => db.close(),
     child: MyApp()));
+}
 
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.
@@ -16,7 +19,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return
         Provider<MainBloc>(
-          create: (_) => MainBloc(Provider.of<AppDatabase>(context, listen: false)),
+          create: (_) => MainBloc(Provider.of<AppDatabase>(context)),
           child: MaterialApp(
             title: 'Octopus data',
             theme: ThemeData(

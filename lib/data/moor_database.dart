@@ -25,7 +25,7 @@ class Energy extends Table {
 class AppDatabase extends _$AppDatabase {
   AppDatabase()
       : super(FlutterQueryExecutor.inDatabaseFolder(
-            path: 'db.sqlite', logStatements: true));
+            path: 'db.sqlite', logStatements: false));
 
   int get schemaVersion => 1;
 
