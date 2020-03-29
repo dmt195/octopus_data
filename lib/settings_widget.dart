@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
 import 'package:link/link.dart';
-import 'package:octopus_data/access_controller.dart';
-import 'package:octopus_data/repo/repo_controller.dart';
+import 'package:octopus_data/bloc.dart';
+import 'package:provider/provider.dart';
 
 class SettingsWidget extends StatefulWidget {
+
   @override
   _SettingsWidgetState createState() => _SettingsWidgetState();
 }
@@ -19,11 +19,12 @@ class _SettingsWidgetState extends State<SettingsWidget> {
   String regionalTariff;
   bool isLoaded;
 
-  final KeyValueStore ac = GetIt.I<KeyValueStore>();
+
 
   @override
   Widget build(BuildContext context) {
     final _formKey = GlobalKey<FormState>();
+    final MainBloc bloc = Provider.of<MainBloc>(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -53,7 +54,7 @@ class _SettingsWidgetState extends State<SettingsWidget> {
                             ),
                           ),
                           TextFormField(
-                            initialValue: ac.consumptionCurl,
+                            initialValue: bloc.keyValueStore.consumptionCurl,
                             minLines: 4,
                             maxLines: 4,
                             // The validator receives the text that the user has entered.
@@ -72,7 +73,7 @@ class _SettingsWidgetState extends State<SettingsWidget> {
                                   mpanNo = firstMatch.group(2);
                                   serialNo = firstMatch.group(3);
                                 });
-                                ac.saveConsumptionCredentials(
+                                bloc.keyValueStore.saveConsumptionCredentials(
                                     apiKey, mpanNo, serialNo);
                               }
                               return null;
@@ -88,7 +89,7 @@ class _SettingsWidgetState extends State<SettingsWidget> {
                           TextFormField(
                             minLines: 4,
                             maxLines: 4,
-                            initialValue: ac.tariffCurl,
+                            initialValue: bloc.keyValueStore.tariffCurl,
                             // The validator receives the text that the user has entered.
                             validator: (value) {
                               RegExp re = new RegExp(
@@ -106,7 +107,7 @@ class _SettingsWidgetState extends State<SettingsWidget> {
                                   tariff = firstMatch.group(2);
                                   regionalTariff = firstMatch.group(3);
                                 });
-                                ac.saveTariffCredentials(tariff, regionalTariff);
+                                bloc.keyValueStore.saveTariffCredentials(tariff, regionalTariff);
                               }
                               return null;
                             },
@@ -149,7 +150,7 @@ class _SettingsWidgetState extends State<SettingsWidget> {
                         onPressed: () {
                           if (_formKey.currentState.validate()) {
                             // save values
-                            ac
+                            bloc.keyValueStore
                                 .upDateCurls(_consumptionCurl, _tariffCurl)
                                 .then((_) {
                               _ackAlert(context);
@@ -164,19 +165,6 @@ class _SettingsWidgetState extends State<SettingsWidget> {
                             : CircularProgressIndicator(),
                         color: Colors.deepPurple,
                       ),
-                      FlatButton(
-                        onPressed: () {
-                          // clear DB
-                          GetIt.I<RepositoryController>().clearAll();
-                          // clear shared preferences
-                          ac.clearAllData();
-                        },
-                        child: Text(
-                          "Clear All Data",
-                          style: TextStyle(color: Colors.white),
-                        ),
-                        color: Colors.deepPurple,
-                      ),
                     ],
                   ),
                 ],
@@ -189,12 +177,11 @@ class _SettingsWidgetState extends State<SettingsWidget> {
   @override
   void initState() {
     super.initState();
-    isLoaded = true;
     () async {
       await Future.delayed(Duration.zero);
       setState(() {
-        _consumptionCurl = ac.consumptionCurl;
-        _tariffCurl = ac.tariffCurl;
+        _consumptionCurl = Provider.of<MainBloc>(context).keyValueStore.consumptionCurl;
+        _tariffCurl = Provider.of<MainBloc>(context).keyValueStore.tariffCurl;
       });
 
     }();

@@ -21,11 +21,9 @@ class KeyValueStore {
   static const String TARIFF_CODE_KEY = "tariff";
   static const String REGIONAL_CODE_KEY = "region";
 
-  KeyValueStore() {
-    init();
-  }
+  KeyValueStore();
 
-  init() async {
+  Future<void> init() async {
 
     prefs = await SharedPreferences.getInstance();
 
@@ -37,6 +35,8 @@ class KeyValueStore {
     MSN = prefs.getString(MSN_KEY) ?? "";
     tariffCode = prefs.getString(TARIFF_CODE_KEY) ?? "";
     regionalTariffCode = prefs.getString(REGIONAL_CODE_KEY) ?? "";
+
+    return;
   }
 
   Future<void> upDateCurls(String consumptionCurl, String tariffCurl) async {
