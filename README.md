@@ -1,4 +1,6 @@
 # Octopus Data App 🐙
+
+[![Codemagic build status](https://api.codemagic.io/apps/5e8227914b4d3247a2739c79/5e8227914b4d3247a2739c78/status_badge.svg)](https://codemagic.io/apps/5e8227914b4d3247a2739c79/5e8227914b4d3247a2739c78/latest_build)
   
 A Flutter application to read tariff and consumption data for Agile Octopus tariffs. I made this as an experiment and wanted to make it better but don't have a great deal of time. Feel free to use and contribute as you see fit!
 If you are considering going with Octopus then please use my referral code: https://share.octopus.energy/witty-hyena-591
