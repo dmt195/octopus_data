@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:link/link.dart';
 import 'package:octopus_data/bloc.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class SettingsWidget extends StatefulWidget {
   @override
@@ -125,13 +125,14 @@ class _SettingsWidgetState extends State<SettingsWidget> {
                                 Padding(
                                   padding:
                                       const EdgeInsets.symmetric(vertical: 8.0),
-                                  child: Link(
-                                    url:
-                                        "https://octopus.energy/dashboard/developer/",
+                                  child: FlatButton(
                                     child: Text(
                                       " < Click here to go to your 'Developer page' >",
                                       style: TextStyle(color: Colors.redAccent),
                                     ),
+                                    onPressed: () {
+                                      _launchURL();
+                                    },
                                   ),
                                 ),
                               ],
@@ -180,6 +181,15 @@ class _SettingsWidgetState extends State<SettingsWidget> {
         ),
       );
     });
+  }
+
+  _launchURL() async {
+    const url = "https://octopus.energy/dashboard/developer/";
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      throw 'Could not launch $url';
+    }
   }
 
   @override
