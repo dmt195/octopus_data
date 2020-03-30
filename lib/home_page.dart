@@ -2,7 +2,6 @@ import 'package:calendar_strip/calendar_strip.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:octopus_data/bloc.dart';
-import 'package:octopus_data/data/moor_database.dart';
 import 'package:octopus_data/data_list_item.dart';
 import 'package:octopus_data/graph_widget.dart';
 import 'package:octopus_data/summariser_widget.dart';
@@ -18,7 +17,6 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   bool isLoading = false;
-  DateTime _dayOfInterest = DateTime.now();
 
   @override
   Widget build(BuildContext context) {
@@ -33,33 +31,27 @@ class _MyHomePageState extends State<MyHomePage> {
             title: Text(widget.title),
             actions: <Widget>[SettingsMenuIcon()],
           ),
-          body: StreamBuilder<List<EnergyData>>(
-            stream: bloc.db.watchAllEnergyData(_dayOfInterest),
-            initialData: [],
-            builder: ((context, snapshot) {
-              if (!snapshot.hasData || snapshot.hasError) {
-                return Container(
-                  child: Center(child: Text("No Data For This Date (Yet)")),
-                );
-              }
-
-              return Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: <Widget>[
-                  CalendarStrip(
-                    startDate: DateTime.now().subtract(Duration(days: 30)),
-                    endDate: DateTime.now().add(Duration(days: 2)),
-                    onDateSelected: (date) => _setDateOfInterest(date),
-                    selectedDate: _dayOfInterest,
-                  ),
-                  SummariserWidget(snapshot.data),
-                  GraphWidget(snapshot.data),
-                  DataListViewWidget(snapshot.data),
-                ],
-              );
-            }),
-          ),
+          body: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: <Widget>[
+                    CalendarStrip(
+                      startDate: DateTime.now().subtract(Duration(days: 30)),
+                      endDate: DateTime.now().add(Duration(days: 2)),
+                      onDateSelected: (date) => _setDateOfInterest(date),
+                      selectedDate: bloc.dayOfInterest,
+                    ),
+                    SummariserWidget(bloc.dataReady),
+                    GraphWidget(bloc.dataReady),
+                    bloc.dataReady == null || bloc.dataReady.isEmpty
+                        ? Expanded(
+                          child: Container(
+                      child: Center(child: Text("No Data For This Date (Yet)")),
+                    ),
+                        )
+                        : DataListViewWidget(bloc.dataReady),
+                  ],
+                ),
           floatingActionButton: FloatingActionButton(
             onPressed: (bloc.keyValueStore != null &&
                     bloc.keyValueStore.apiKey.isNotEmpty)
@@ -78,9 +70,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   _setDateOfInterest(date) {
-    setState(() {
-      _dayOfInterest = date;
-    });
+    context.bloc<MainBloc>().add(DateChosenEvent(date));
   }
 }
 
