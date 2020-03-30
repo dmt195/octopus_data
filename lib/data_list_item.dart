@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:octopus_data/data/moor_database.dart';
-import 'package:octopus_data/repo/repo_controller.dart';
+import 'package:octopus_data/main_bloc.dart';
 import 'extension_functions.dart';
 
 class DataListViewWidget extends StatelessWidget {
@@ -21,7 +21,7 @@ class DataListViewWidget extends StatelessWidget {
               reverse: true,
               itemBuilder: (context, index) {
                 EnergyData item = _data[index];
-                double actualTariff = RepositoryController.calculateCost(
+                double actualTariff = MainBloc.calculateCost(
                     item.tariffWithVat, 1, item.intervalStart.hour);
 
                 return ListTile(

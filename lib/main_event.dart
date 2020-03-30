@@ -9,4 +9,9 @@ class SavedDataReadyEvent extends MainEvent {}
 
 class DataAvailableEvent extends MainEvent {}
 
+class DateChosenEvent extends MainEvent {
+  final DateTime date;
+  DateChosenEvent(this.date);
+}
+
 
