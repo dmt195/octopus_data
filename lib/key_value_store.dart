@@ -35,17 +35,21 @@ class KeyValueStore {
     MSN = prefs.getString(MSN_KEY) ?? "";
     tariffCode = prefs.getString(TARIFF_CODE_KEY) ?? "";
     regionalTariffCode = prefs.getString(REGIONAL_CODE_KEY) ?? "";
-
     return;
   }
 
   Future<void> upDateCurls(String consumptionCurl, String tariffCurl) async {
+    this.consumptionCurl = consumptionCurl;
+    this.tariffCurl = tariffCurl;
     await prefs.setString(CONSUMPTION_CURL_KEY, consumptionCurl);
     await prefs.setString(TARIFF_CURL_KEY, tariffCurl);
   }
 
   Future<void> saveConsumptionCredentials(
       String apiKey, String mPAN, String serialNo) async {
+    this.apiKey = apiKey;
+    this.MPAN = mPAN;
+    this.MSN = serialNo;
     await prefs.setString(API_KEY_KEY, apiKey);
     await prefs.setString(MPAN_KEY, mPAN);
     await prefs.setString(MSN_KEY, serialNo);
@@ -53,11 +57,13 @@ class KeyValueStore {
 
   Future<void> saveTariffCredentials(
       String tariff, String regionalTariff) async {
+    this.tariffCode = tariff;
+    this.regionalTariffCode = regionalTariff;
     await prefs.setString(TARIFF_CODE_KEY, tariff);
     await prefs.setString(REGIONAL_CODE_KEY, regionalTariff);
   }
 
-  void clearAllData() {
-    prefs.clear();
+  Future<void> clearAllData() async {
+    await prefs.clear();
   }
 }

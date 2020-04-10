@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:octopus_data/data/moor_database.dart';
-import 'package:octopus_data/main_bloc.dart';
+import 'package:octopus_data/bloc_main/main_bloc.dart';
 import 'extension_functions.dart';
 
 class DataListViewWidget extends StatelessWidget {

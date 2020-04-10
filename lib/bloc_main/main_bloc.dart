@@ -4,7 +4,7 @@ import 'package:bloc/bloc.dart';
 import 'package:octopus_data/key_value_store.dart';
 import 'package:octopus_data/data/moor_database.dart';
 import 'package:octopus_data/repo/agile_repo.dart';
-import './bloc.dart';
+import 'bloc.dart';
 
 class MainBloc extends Bloc<MainEvent, MainState> {
   @override
@@ -55,29 +55,39 @@ class MainBloc extends Bloc<MainEvent, MainState> {
   Stream<MainState> mapEventToState(
     MainEvent event,
   ) async* {
-//    print("In mapEventToState with $event");
+    print("In mapEventToState with $event");
     if (event is DownloadRequestEvent) {
-//      print("DownloadRequestEvent fired!");
+      print("DownloadRequestEvent fired!");
       await getAndSaveAllTariffData();
       await getAndSaveAllConsumptionData();
       await findCompletableChargeMatchesAndAddToDb();
     } else if (event is SavedDataReadyEvent) {
-//      print("SavedDataReadyEvent fired!");
+      print("SavedDataReadyEvent fired!");
       // if empty then fire the settings page event
       if (keyValueStore.apiKey.isEmpty) {
-//        print("api key is empty");
+        print("api key is empty");
         yield SettingsRequiredState();
       } else {
-//        print("api key is present - getting AgileRepo instance");
+        print("api key is present - getting AgileRepo instance");
         // ready the repos with their appropriate settings
         ar = AgileRepository(keyValueStore);
         add(DownloadRequestEvent());
       }
     } else if (event is DataAvailableEvent) {
+      print("DataAvailableEvent fired!");
       yield DataAvailableState(dataReady);
     } else if (event is DateChosenEvent) {
+      print("DateChosenEvent fired!");
       dayOfInterest = event.date;
       getDataAndListen();
+    } else if (event is PreferencesSavedEvent) {
+      print("PreferencesSavedEvent fired!");
+      add(SavedDataReadyEvent());
+      getDataAndListen();
+    } else if (event is ClearAllDataEvent) {
+      await keyValueStore.clearAllData();
+      await db.clearData();
+      add(SavedDataReadyEvent());
     }
   }
 
