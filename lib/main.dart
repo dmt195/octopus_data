@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:octopus_data/bloc.dart';
+import 'package:octopus_data/bloc_main/bloc.dart';
 import 'package:octopus_data/data/moor_database.dart';
 import 'package:octopus_data/home_page.dart';
 import 'package:octopus_data/settings_widget.dart';

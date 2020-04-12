@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:octopus_data/bloc.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
+
+import 'bloc_main/bloc.dart';
+import 'bloc_main/main_bloc.dart';
 
 class SettingsWidget extends StatefulWidget {
   @override
@@ -12,11 +14,11 @@ class SettingsWidget extends StatefulWidget {
 class _SettingsWidgetState extends State<SettingsWidget> {
   String _tariffCurl;
   String _consumptionCurl;
-  String apiKey;
-  String mpanNo;
-  String serialNo;
-  String tariff;
-  String regionalTariff;
+  String _apiKey;
+  String _mpanNo;
+  String _serialNo;
+  String _tariff;
+  String _regionalTariff;
 
   @override
   Widget build(BuildContext context) {
@@ -30,9 +32,9 @@ class _SettingsWidgetState extends State<SettingsWidget> {
         ),
         body: SafeArea(
           child: Container(
-              child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Form(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Form(
                 key: _formKey,
                 child: Column(
                   children: <Widget>[
@@ -67,12 +69,12 @@ class _SettingsWidgetState extends State<SettingsWidget> {
                                 } else {
                                   setState(() {
                                     _consumptionCurl = value;
-                                    apiKey = firstMatch.group(1);
-                                    mpanNo = firstMatch.group(2);
-                                    serialNo = firstMatch.group(3);
+                                    _apiKey = firstMatch.group(1);
+                                    _mpanNo = firstMatch.group(2);
+                                    _serialNo = firstMatch.group(3);
                                   });
                                   bloc.keyValueStore.saveConsumptionCredentials(
-                                      apiKey, mpanNo, serialNo);
+                                      _apiKey, _mpanNo, _serialNo);
                                 }
                                 return null;
                               },
@@ -80,7 +82,7 @@ class _SettingsWidgetState extends State<SettingsWidget> {
                             Padding(
                               padding: const EdgeInsets.only(top: 24.0),
                               child: Text(
-                                "Tarrif 'Curl' Command:",
+                                "Unit rate 'Curl' Command:",
                                 style: TextStyle(fontWeight: FontWeight.bold),
                               ),
                             ),
@@ -97,16 +99,16 @@ class _SettingsWidgetState extends State<SettingsWidget> {
                                   return "This can't be emtpy";
                                 } else if (firstMatch == null) {
                                   return "This doesn't look right";
-                                } else if (firstMatch.group(1) != apiKey) {
+                                } else if (firstMatch.group(1) != _apiKey) {
                                   return "Api keys don't match";
                                 } else {
                                   setState(() {
                                     _tariffCurl = value;
-                                    tariff = firstMatch.group(2);
-                                    regionalTariff = firstMatch.group(3);
+                                    _tariff = firstMatch.group(2);
+                                    _regionalTariff = firstMatch.group(3);
                                   });
                                   bloc.keyValueStore.saveTariffCredentials(
-                                      tariff, regionalTariff);
+                                      _tariff, _regionalTariff);
                                 }
                                 return null;
                               },
@@ -131,7 +133,8 @@ class _SettingsWidgetState extends State<SettingsWidget> {
                                       style: TextStyle(color: Colors.redAccent),
                                     ),
                                     onPressed: () {
-                                      _launchURL();
+                                      _launchURL(
+                                          "https://octopus.energy/dashboard/developer/");
                                     },
                                   ),
                                 ),
@@ -153,16 +156,6 @@ class _SettingsWidgetState extends State<SettingsWidget> {
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: <Widget>[
                         FlatButton(
-                          onPressed: () {
-                            if (_formKey.currentState.validate()) {
-                              // save values
-                              bloc.keyValueStore
-                                  .upDateCurls(_consumptionCurl, _tariffCurl)
-                                  .then((_) {
-                                _ackAlert(context);
-                              });
-                            }
-                          },
                           child: (!bloc.state.isLoading)
                               ? Text(
                                   "Save",
@@ -172,24 +165,47 @@ class _SettingsWidgetState extends State<SettingsWidget> {
                                   size: Size.fromRadius(8.0),
                                   child: CircularProgressIndicator()),
                           color: Colors.deepPurple,
+                          onPressed: () {
+                            if (_formKey.currentState.validate()) {
+                              // save values
+                                bloc.add(PreferencesSavedEvent(_consumptionCurl, _tariffCurl));
+                                _ackAlert(context);
+                            }
+                          },
+                        ),
+                        FlatButton(
+                          child: (!bloc.state.isLoading)
+                              ? Text(
+                                  "Clear",
+                                  style: TextStyle(color: Colors.white),
+                                )
+                              : SizedBox.fromSize(
+                                  size: Size.fromRadius(8.0),
+                                  child: CircularProgressIndicator()),
+                          color: Colors.deepPurple,
+                          onPressed: () {
+                            // save values
+                            _confirmAlert(context).then(
+                              (value) {
+                                if (value) {
+                                  bloc.add(ClearAllDataEvent());
+                                  //Keep popping until you're home! (2 pops down - one for the dialog, on for settings
+                                  Navigator.of(context).pop();
+                                }
+                              },
+                            );
+                          },
                         ),
                       ],
                     ),
                   ],
-                )),
-          )),
+                ),
+              ),
+            ),
+          ),
         ),
       );
     });
-  }
-
-  _launchURL() async {
-    const url = "https://octopus.energy/dashboard/developer/";
-    if (await canLaunch(url)) {
-      await launch(url);
-    } else {
-      throw 'Could not launch $url';
-    }
   }
 
   @override
@@ -208,6 +224,7 @@ class _SettingsWidgetState extends State<SettingsWidget> {
     }();
   }
 
+  // An alert dialog for confirming what's been saved
   Future<void> _ackAlert(BuildContext context) {
     TextStyle style = TextStyle(fontSize: 12);
 
@@ -227,23 +244,23 @@ class _SettingsWidgetState extends State<SettingsWidget> {
             children: [
               TableRow(children: [
                 Text("API Key", style: style),
-                Text(apiKey, style: style),
+                Text(_apiKey, style: style),
               ]),
               TableRow(children: [
                 Text("MPAN", style: style),
-                Text(mpanNo, style: style),
+                Text(_mpanNo, style: style),
               ]),
               TableRow(children: [
                 Text("MSN", style: style),
-                Text(serialNo, style: style),
+                Text(_serialNo, style: style),
               ]),
               TableRow(children: [
                 Text("Tariff", style: style),
-                Text(tariff, style: style),
+                Text(_tariff, style: style),
               ]),
               TableRow(children: [
                 Text("Regional", style: style),
-                Text(regionalTariff, style: style),
+                Text(_regionalTariff, style: style),
               ]),
             ],
           ),
@@ -251,12 +268,57 @@ class _SettingsWidgetState extends State<SettingsWidget> {
             FlatButton(
               child: Text('Ok'),
               onPressed: () {
-                Navigator.of(context).pop();
+                //Keep popping until you're home! (2 pops down - one for the dialog, on for settings
+                Navigator.of(context)
+                    .popUntil((route) => !Navigator.of(context).canPop());
               },
             ),
           ],
         );
       },
     );
+  }
+}
+
+// An alert dialog for confirming what's been saved
+Future<bool> _confirmAlert(BuildContext context) {
+  TextStyle style = TextStyle(fontSize: 12);
+  return showDialog<bool>(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text('Are you sure?'),
+        content: Container(
+          child: Text(
+              "This deletes all saved credentials and price history from the device."),
+        ),
+        actions: <Widget>[
+          Row(
+            children: [
+              FlatButton(
+                child: Text('No'),
+                onPressed: () {
+                  Navigator.of(context).pop(false);
+                },
+              ),
+              FlatButton(
+                child: Text('Yes'),
+                onPressed: () {
+                  Navigator.of(context).pop(true);
+                },
+              ),
+            ],
+          ),
+        ],
+      );
+    },
+  );
+}
+
+_launchURL(String url) async {
+  if (await canLaunch(url)) {
+    await launch(url);
+  } else {
+    throw 'Could not launch $url';
   }
 }

@@ -96,5 +96,10 @@ class AppDatabase extends _$AppDatabase {
     return data;
   }
 
+  Future<void> clearAllData() async {
+    await delete(energy).go();
+    return;
+  }
+
 
 }

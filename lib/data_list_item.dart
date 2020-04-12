@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:octopus_data/data/moor_database.dart';
-import 'package:octopus_data/main_bloc.dart';
 import 'extension_functions.dart';
 
 class DataListViewWidget extends StatelessWidget {
@@ -21,8 +20,6 @@ class DataListViewWidget extends StatelessWidget {
               reverse: true,
               itemBuilder: (context, index) {
                 EnergyData item = _data[index];
-                double actualTariff = MainBloc.calculateCost(
-                    item.tariffWithVat, 1, item.intervalStart.hour);
 
                 return ListTile(
                   leading: Text(
@@ -32,12 +29,12 @@ class DataListViewWidget extends StatelessWidget {
                       : "Pending"),
                   subtitle: Text(
                       "Tariff: ${item.tariffWithVat?.toStringAsFixed(2)} p/kWh (Wholesale),\n"
-                      "Tariff: ${actualTariff.toStringAsFixed(2)} p/kWh (Actual)\n"
+                      "Tariff: ${item.getActualTariff().toStringAsFixed(2)} p/kWh (Actual)\n"
                       "Consumption: ${item.consumption?.toStringAsFixed(2) ?? "-"} kWh"),
                   trailing: Container(
                     height: 40.0,
                     width: 10.0,
-                    color: _getTariffBasedColour(actualTariff),
+                    color: _getTariffBasedColour(item.getActualTariff()),
                   ),
                 );
               },
