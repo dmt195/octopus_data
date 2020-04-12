@@ -16,7 +16,6 @@ class MainBloc extends Bloc<MainEvent, MainState> {
   AgileRepository ar;
   AppDatabase db;
   DateTime dayOfInterest;
-  List<EnergyData> dataReady;
   StreamSubscription<List<EnergyData>> subSub;
 
   MainBloc(this.db) {
@@ -34,16 +33,16 @@ class MainBloc extends Bloc<MainEvent, MainState> {
   void getDataAndListen() {
     if (subSub != null) {
       subSub.cancel();
-//      print("Cancelling old DB sub");
+//      print("Cancelling old DB query sub");
     }
     var dbSub = db.watchAllEnergyData(dayOfInterest);
-//    print("Subscribing to DB changes for new date ${dayOfInterest.toIso8601String()}");
-    subSub = dbSub.listen((List<EnergyData> data) {
-//      print("DB changed with ${data.length} entries");
-      dataReady = data;
-      add(DataAvailableEvent());
-    });
-  }
+//    print(
+//        "Subscribing to DB query for new date ${dayOfInterest.toIso8601String()}");
+        subSub = dbSub.listen((List<EnergyData> data) {
+//      print("DB result changed with ${data.length} entries");
+          add(DataAvailableEvent(data));
+        });
+    }
 
   @override
   Future<void> close() {
@@ -52,42 +51,44 @@ class MainBloc extends Bloc<MainEvent, MainState> {
   }
 
   @override
-  Stream<MainState> mapEventToState(
-    MainEvent event,
-  ) async* {
-    print("In mapEventToState with $event");
+  Stream<MainState> mapEventToState(MainEvent event,) async* {
+//    print("In mapEventToState with $event incoming...");
     if (event is DownloadRequestEvent) {
-      print("DownloadRequestEvent fired!");
+      yield DataRequestState();
+//      print("Emitting DataRequestState");
       await getAndSaveAllTariffData();
       await getAndSaveAllConsumptionData();
       await findCompletableChargeMatchesAndAddToDb();
+      yield CompletedFetchState();
+      getDataAndListen(); //this feels wrong!
+//      print("Emitting CompletedFetchState");
     } else if (event is SavedDataReadyEvent) {
-      print("SavedDataReadyEvent fired!");
       // if empty then fire the settings page event
       if (keyValueStore.apiKey.isEmpty) {
-        print("api key is empty");
+//        print("api key is empty");
         yield SettingsRequiredState();
+//        print("Emitting SettingsRequiredState");
       } else {
-        print("api key is present - getting AgileRepo instance");
+//        print("api key is present - getting AgileRepo instance");
         // ready the repos with their appropriate settings
         ar = AgileRepository(keyValueStore);
         add(DownloadRequestEvent());
       }
     } else if (event is DataAvailableEvent) {
-      print("DataAvailableEvent fired!");
-      yield DataAvailableState(dataReady);
+      yield DataAvailableState(event.data);
+//      print(
+//          "Emitting DataAvailableState (with data of ${event.data.length} elements)");
     } else if (event is DateChosenEvent) {
-      print("DateChosenEvent fired!");
       dayOfInterest = event.date;
       getDataAndListen();
     } else if (event is PreferencesSavedEvent) {
-      print("PreferencesSavedEvent fired!");
+      keyValueStore.upDateCurls(event.curl1, event.curl2);
       add(SavedDataReadyEvent());
-      getDataAndListen();
     } else if (event is ClearAllDataEvent) {
       await keyValueStore.clearAllData();
-      await db.clearData();
-      add(SavedDataReadyEvent());
+      await db.clearAllData();
+      yield SettingsRequiredState();
+//      print("Emitting SettingsRequiredState");
     }
   }
 
@@ -129,7 +130,6 @@ class MainBloc extends Bloc<MainEvent, MainState> {
       bool isMoreResults = true;
       //iterate over all the results, making an api call each time
       while (isMoreResults) {
-//        print("Making consumption API call (page = $page)");
         var response = await ar.getConsumptionForDateRange(
             lastConsumptionEntry ?? today.subtract(Duration(days: 30)), today,
             page: page);
@@ -168,22 +168,28 @@ class MainBloc extends Bloc<MainEvent, MainState> {
       dataToUpdate.forEach((e) async {
         await db.updateWithCostData(EnergyData(
             intervalStart: e.intervalStart,
-            costWithVat: calculateCost(
-                e.tariffWithVat, e.consumption, e.intervalStart.hour)));
+            costWithVat: calculateCost(e)));
       });
     });
   }
 
-  //todo should take an EnergyData instead
-  static double calculateCost(double perKwHr, double consumption, int hour) {
-    //min(2.30 x W + P, 33.33) 33.33 ex vat, 35 inc vat
-    //P is 11.0 between 4pm and 7pm
-    return consumption *
-        [(2.3 * perKwHr + (hour < 19 && hour >= 16 ? 11 : 0)), 35.0]
-            .reduce(min);
+  static double calculateCost(EnergyData e, {bool withoutConsumption = false}) {
+    // If the tariff is negative then assume there is no equation and no VAT applied
+    if (e.tariffExVat < 0) {
+      return (withoutConsumption ? 1 : e.consumption) * e.tariffExVat;
+    }
+
+    // For positive tariff values, apply the equation given by Octopus
+    // min(2.30 x W + P, 33.33) 33.33 ex vat, 35 inc vat
+    // P is 11.0 between 4pm and 7pm
+    return (withoutConsumption ? 1 : e.consumption) *
+        [
+          (2.3 * e.tariffWithVat +
+              (e.intervalStart.hour < 19 && e.intervalStart.hour >= 16
+                  ? 11
+                  : 0)),
+          35.0
+        ].reduce(min);
   }
 
-  void clearAll() {
-//    db.clearAllData();
-  }
 }

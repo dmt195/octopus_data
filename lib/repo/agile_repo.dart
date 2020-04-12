@@ -43,8 +43,6 @@ class AgileRepository {
     if (response.statusCode == 200) {
       return TariffResponse.fromJson(response.body);
     } else {
-//    print(
-//        "Rates response returned ${response.statusCode} (${response.reasonPhrase}).");
       return null;
     }
   }
@@ -64,8 +62,6 @@ class AgileRepository {
     if (response.statusCode == 200) {
       return ConsumptionResponse.fromJson(response.body);
     } else {
-//    print(
-//        "Consumption response returned ${response.statusCode} (${response.reasonPhrase}).");
       return null;
     }
   }

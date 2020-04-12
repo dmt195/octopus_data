@@ -64,6 +64,9 @@ class KeyValueStore {
   }
 
   Future<void> clearAllData() async {
+    this.apiKey = "";
+    this.consumptionCurl = "";
+    this.tariffCurl = "";
     await prefs.clear();
   }
 }

@@ -6,7 +6,7 @@ abstract class MainState {
   final bool isLoading = false;
   final SettingsStatus settingsState = SettingsStatus.UNKNOWN;
   final DateTime dayOfInterest = DateTime.now();
-  final List<EnergyData> dataReady = [];
+  final List<EnergyData> data = [];
 }
 
 class InitialMainState extends MainState {
@@ -19,11 +19,14 @@ class DataRequestState extends MainState {
   final bool isLoading = true;
 }
 
-class DataAvailableState extends MainState {
+class CompletedFetchState extends MainState {
   final bool isLoading = false;
-  final List<EnergyData> dataReady;
+}
 
-  DataAvailableState(this.dataReady);
+class DataAvailableState extends MainState {
+  final List<EnergyData> data;
+
+  DataAvailableState(this.data);
 }
 
 class SavedDataAvailableState extends MainState {}

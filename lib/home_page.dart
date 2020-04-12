@@ -33,16 +33,16 @@ class MyHomePage extends StatelessWidget {
                 onDateSelected: (date) => _setDateOfInterest(bloc, date),
                 selectedDate: bloc.dayOfInterest,
               ),
-              SummariserWidget(bloc.dataReady),
-              GraphWidget(bloc.dataReady),
-              bloc.dataReady == null || bloc.dataReady.isEmpty
+              SummariserWidget(bloc.state.data),
+              GraphWidget(bloc.state.data),
+              bloc.state.data == null || bloc.state.data.isEmpty
                   ? Expanded(
                       child: Container(
                         child:
                             Center(child: Text("No Data For This Date (Yet)")),
                       ),
                     )
-                  : DataListViewWidget(bloc.dataReady),
+                  : DataListViewWidget(bloc.state.data),
             ],
           ),
           floatingActionButton: FloatingActionButton(

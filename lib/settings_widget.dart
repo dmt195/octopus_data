@@ -82,7 +82,7 @@ class _SettingsWidgetState extends State<SettingsWidget> {
                             Padding(
                               padding: const EdgeInsets.only(top: 24.0),
                               child: Text(
-                                "Tarrif 'Curl' Command:",
+                                "Unit rate 'Curl' Command:",
                                 style: TextStyle(fontWeight: FontWeight.bold),
                               ),
                             ),
@@ -168,13 +168,8 @@ class _SettingsWidgetState extends State<SettingsWidget> {
                           onPressed: () {
                             if (_formKey.currentState.validate()) {
                               // save values
-                              bloc.keyValueStore
-                                  .upDateCurls(_consumptionCurl, _tariffCurl)
-                                  .then((_) {
-                                bloc.add(PreferencesSavedEvent());
-//                                _ackAlert(context);
-                                Navigator.of(context).pop();
-                              });
+                                bloc.add(PreferencesSavedEvent(_consumptionCurl, _tariffCurl));
+                                _ackAlert(context);
                             }
                           },
                         ),
@@ -190,8 +185,15 @@ class _SettingsWidgetState extends State<SettingsWidget> {
                           color: Colors.deepPurple,
                           onPressed: () {
                             // save values
-                            bloc.add(ClearAllDataEvent());
-                            Navigator.of(context).pop();
+                            _confirmAlert(context).then(
+                              (value) {
+                                if (value) {
+                                  bloc.add(ClearAllDataEvent());
+                                  //Keep popping until you're home! (2 pops down - one for the dialog, on for settings
+                                  Navigator.of(context).pop();
+                                }
+                              },
+                            );
                           },
                         ),
                       ],
@@ -222,6 +224,7 @@ class _SettingsWidgetState extends State<SettingsWidget> {
     }();
   }
 
+  // An alert dialog for confirming what's been saved
   Future<void> _ackAlert(BuildContext context) {
     TextStyle style = TextStyle(fontSize: 12);
 
@@ -265,7 +268,9 @@ class _SettingsWidgetState extends State<SettingsWidget> {
             FlatButton(
               child: Text('Ok'),
               onPressed: () {
-                Navigator.of(context).pop();
+                //Keep popping until you're home! (2 pops down - one for the dialog, on for settings
+                Navigator.of(context)
+                    .popUntil((route) => !Navigator.of(context).canPop());
               },
             ),
           ],
@@ -273,6 +278,41 @@ class _SettingsWidgetState extends State<SettingsWidget> {
       },
     );
   }
+}
+
+// An alert dialog for confirming what's been saved
+Future<bool> _confirmAlert(BuildContext context) {
+  TextStyle style = TextStyle(fontSize: 12);
+  return showDialog<bool>(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text('Are you sure?'),
+        content: Container(
+          child: Text(
+              "This deletes all saved credentials and price history from the device."),
+        ),
+        actions: <Widget>[
+          Row(
+            children: [
+              FlatButton(
+                child: Text('No'),
+                onPressed: () {
+                  Navigator.of(context).pop(false);
+                },
+              ),
+              FlatButton(
+                child: Text('Yes'),
+                onPressed: () {
+                  Navigator.of(context).pop(true);
+                },
+              ),
+            ],
+          ),
+        ],
+      );
+    },
+  );
 }
 
 _launchURL(String url) async {
