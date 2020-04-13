@@ -25,6 +25,7 @@ class MyApp extends StatelessWidget {
             theme: ThemeData(
               primarySwatch: Colors.blue,
             ),
+            darkTheme: ThemeData.dark(),
             home: MyHomePage(),
             routes: {'/settings': (context) => SettingsWidget()},
     ),

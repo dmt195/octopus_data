@@ -46,3 +46,7 @@ Android Screenshot
 
 [screenshot]: docs/android_debug.png
 
+![Dark mode build in][screenshot]
+
+[screenshot]: docs/android_debug_dark.png
+

@@ -28,6 +28,10 @@ class MyHomePage extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
               CalendarStrip(
+                containerDecoration: BoxDecoration(
+                  color: Theme.of(context).accentColor,
+                ),
+                addSwipeGesture: true,
                 startDate: DateTime.now().subtract(Duration(days: 30)),
                 endDate: DateTime.now().add(Duration(days: 2)),
                 onDateSelected: (date) => _setDateOfInterest(bloc, date),
