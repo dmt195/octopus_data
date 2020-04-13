@@ -8,7 +8,13 @@ If you are considering going with Octopus then please use my referral code: http
 ## Building  it
 So far only built and tested for iOS and Android. Not tested on macOS or the Web although I'd love to see PRs to support that!
 The app should import well into Android Studio or VS Code with the Flutter plugin. 
-See `https://flutter.dev/docs/get-started/install` to get the tools installed.
+See https://flutter.dev/docs/get-started/install to get the tools installed.
+
+To edit the app icons, change the files in `assets/icon/` and then run the following command in a terminal:
+
+`flutter pub run flutter_launcher_icons:main`
+
+See https://github.com/fluttercommunity/flutter_launcher_icons for more info.
 
 ## Using the app
   
