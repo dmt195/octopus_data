@@ -40,13 +40,7 @@ When you first see the main screen there will be no data stored. The floating ac
 ## How to contribute
 Fork the repository, make changes, and submit a pull request. There's plenty that can be done. I only ask that PRs are kept small and focused.
 
-Android Screenshot
+## Android screenshots
 
-![some early hours high usage!][screenshot]
-
-[screenshot]: docs/android_debug.png
-
-![Dark mode build in][screenshot]
-
-[screenshot]: docs/android_debug_dark.png
+![some early hours high usage!](docs/android_debug.png) ![Dark mode build in](docs/android_debug_dark.png)
 
