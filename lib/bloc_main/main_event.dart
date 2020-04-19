@@ -22,10 +22,42 @@ class DateChosenEvent extends MainEvent {
 }
 
 class PreferencesSavedEvent extends MainEvent {
-  final String curl1;
-  final String curl2;
+  final OctopusUserCredentials credentials;
 
-  PreferencesSavedEvent(this.curl1, this.curl2);
+  PreferencesSavedEvent(this.credentials);
 }
 
 class ClearAllDataEvent extends MainEvent {}
+
+class DocumentProcessRequestEvent extends MainEvent {
+  final String webDocumentAsString;
+  DocumentProcessRequestEvent(this.webDocumentAsString);
+}
+
+
+class OctopusUserCredentials {
+  String apiKey;
+  String mpan;
+  String msn;
+  String tariff;
+  String regionalTariff;
+
+  OctopusUserCredentials(this.apiKey, this.mpan, this.msn, this.tariff,
+      this.regionalTariff);
+}
+
+class CredentialParserResult {
+  OctopusUserCredentials credentials;
+  bool success;
+
+  CredentialParserResult(this.success, {this.credentials});
+
+}
+
+class WebNavEvent extends MainEvent {
+  String url;
+
+  WebNavEvent(this.url);
+
+
+}

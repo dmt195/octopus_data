@@ -1,4 +1,5 @@
 import 'package:injectable/injectable.dart';
+import 'package:octopus_data/bloc_main/bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 @singleton
@@ -10,11 +11,7 @@ class KeyValueStore {
   String MSN;
   String tariffCode;
   String regionalTariffCode;
-  String consumptionCurl;
 
-  String tariffCurl;
-  static const String CONSUMPTION_CURL_KEY = "consumptionCurl";
-  static const String TARIFF_CURL_KEY = "tariffCurl";
   static const String API_KEY_KEY = "api_key";
   static const String MPAN_KEY = "mpan";
   static const String MSN_KEY = "msn";
@@ -27,9 +24,6 @@ class KeyValueStore {
 
     prefs = await SharedPreferences.getInstance();
 
-    consumptionCurl = prefs.getString(CONSUMPTION_CURL_KEY) ?? "";
-    tariffCurl = prefs.getString(TARIFF_CURL_KEY) ?? "";
-
     apiKey = prefs.getString(API_KEY_KEY) ?? "";
     MPAN = prefs.getString(MPAN_KEY) ?? "";
     MSN = prefs.getString(MSN_KEY) ?? "";
@@ -38,35 +32,27 @@ class KeyValueStore {
     return;
   }
 
-  Future<void> upDateCurls(String consumptionCurl, String tariffCurl) async {
-    this.consumptionCurl = consumptionCurl;
-    this.tariffCurl = tariffCurl;
-    await prefs.setString(CONSUMPTION_CURL_KEY, consumptionCurl);
-    await prefs.setString(TARIFF_CURL_KEY, tariffCurl);
-  }
-
-  Future<void> saveConsumptionCredentials(
-      String apiKey, String mPAN, String serialNo) async {
-    this.apiKey = apiKey;
-    this.MPAN = mPAN;
-    this.MSN = serialNo;
+  Future<void> updateCredentials(OctopusUserCredentials credentials) async {
+    // API key
+    this.apiKey = credentials.apiKey;
     await prefs.setString(API_KEY_KEY, apiKey);
-    await prefs.setString(MPAN_KEY, mPAN);
-    await prefs.setString(MSN_KEY, serialNo);
-  }
 
-  Future<void> saveTariffCredentials(
-      String tariff, String regionalTariff) async {
-    this.tariffCode = tariff;
-    this.regionalTariffCode = regionalTariff;
-    await prefs.setString(TARIFF_CODE_KEY, tariff);
-    await prefs.setString(REGIONAL_CODE_KEY, regionalTariff);
+    // Consumption details
+    this.MPAN = credentials.mpan;
+    this.MSN = credentials.msn;
+    await prefs.setString(MPAN_KEY, credentials.mpan);
+    await prefs.setString(MSN_KEY, credentials.msn);
+
+    // Tariff details
+    this.tariffCode = credentials.tariff;
+    this.regionalTariffCode = credentials.regionalTariff;
+    await prefs.setString(TARIFF_CODE_KEY, credentials.tariff);
+    await prefs.setString(REGIONAL_CODE_KEY, credentials.regionalTariff);
+
   }
 
   Future<void> clearAllData() async {
     this.apiKey = "";
-    this.consumptionCurl = "";
-    this.tariffCurl = "";
     await prefs.clear();
   }
 }

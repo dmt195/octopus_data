@@ -1,4 +1,5 @@
 import 'package:meta/meta.dart';
+import 'package:octopus_data/bloc_main/bloc.dart';
 import 'package:octopus_data/data/moor_database.dart';
 
 @immutable
@@ -7,6 +8,8 @@ abstract class MainState {
   final SettingsStatus settingsState = SettingsStatus.UNKNOWN;
   final DateTime dayOfInterest = DateTime.now();
   final List<EnergyData> data = [];
+  final OctopusUserCredentials credentials =
+      OctopusUserCredentials("", "", "", "", "");
 }
 
 class InitialMainState extends MainState {
@@ -39,9 +42,12 @@ class SettingsCompletedState extends MainState {
   final SettingsStatus settingsState = SettingsStatus.VALID;
 }
 
+class DevPageForegroundedState extends MainState {}
 
+class ShowCredentialsState extends MainState {
+  final OctopusUserCredentials credentials;
 
-enum SettingsStatus {
-  UNKNOWN, VALID, INVALID
+  ShowCredentialsState(this.credentials);
 }
 
+enum SettingsStatus { UNKNOWN, VALID, INVALID }
